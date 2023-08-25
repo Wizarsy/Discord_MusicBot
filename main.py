@@ -9,6 +9,10 @@ load_dotenv()
 
 bot = commands.Bot(command_prefix = ".", intents = discord.Intents.all(), help_command = None, activity = discord.Game(name='.help | /help'))
 
+@bot.event
+async def on_ready():
+  print("\33[32mBot esta online e conectado ao discord\33[0m")
+  
 async def load():
   for cogs in os.listdir("./cogs"):
     if cogs.endswith('.py'):
@@ -16,9 +20,11 @@ async def load():
   
 async def main():
   await load()
-  await bot.start(f"{os.getenv('TOKEN')}")
+  await bot.start(os.getenv('TOKEN'))
   
 if __name__ == "__main__":
-  #  asyncio.run(main())
-   asyncio.run(load())
-   bot.run(f"{os.getenv('TOKEN')}")
+  if os.getenv('ENV') == "DEV":
+    bot.run(os.getenv('TOKEN'))
+    asyncio.run(load())
+  else:
+    asyncio.run(main())
