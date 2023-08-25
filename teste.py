@@ -9,9 +9,9 @@ def ytSearch(music):
       result = ydl.extract_info(f"ytsearch:{music}", download = False)["entries"][0]
     except:
       return False
-  return result
+  return result['url']
   
   
   
 # help(YoutubeDL)
-print(ytSearch("https://youtu.be/lWA2pjMjpBs?si=GljeXBFr6xrH3EuY"))
+print(ytSearch("https://youtu.be/ia1iuXbEaYQ?si=1CmoY39PHxCAYz9S"))

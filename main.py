@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-bot = commands.Bot(command_prefix = ".", intents = discord.Intents.all(), help_command = None)
+bot = commands.Bot(command_prefix = ".", intents = discord.Intents.all(), help_command = None, activity = discord.Game(name='.help | /help'))
 
 async def load():
   for cogs in os.listdir("./cogs"):
@@ -19,6 +19,6 @@ async def main():
   await bot.start(f"{os.getenv('TOKEN')}")
   
 if __name__ == "__main__":
-   asyncio.run(main())
-  #  asyncio.run(load())
-  #  bot.run(f"{os.getenv('TOKEN')}")
+  #  asyncio.run(main())
+   asyncio.run(load())
+   bot.run(f"{os.getenv('TOKEN')}")
