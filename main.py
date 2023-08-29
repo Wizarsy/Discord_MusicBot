@@ -11,7 +11,7 @@ bot = commands.Bot(command_prefix = ".", intents = discord.Intents.all(), help_c
 
 @bot.event
 async def on_ready():
-  print("\33[32mBot esta online e conectado ao discord\33[0m")
+  print("Bot esta online e conectado ao discord")
   
 async def load():
   for cogs in os.listdir("./cogs"):
@@ -24,7 +24,7 @@ async def main():
   
 if __name__ == "__main__":
   if os.getenv('ENV') == "DEV":
-    bot.run(os.getenv('TOKEN'))
     asyncio.run(load())
+    bot.run(os.getenv('TOKEN'))
   else:
     asyncio.run(main())
