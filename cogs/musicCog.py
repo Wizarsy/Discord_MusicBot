@@ -150,7 +150,7 @@ class music(commands.Cog):
   
   @commands.hybrid_command(name = "clear", aliases = ["c"], description = "Limpa a fila de musicas e para a atual")
   async def clear(self, ctx: commands.Context):
-    if self.vc and (len(self.queue) > 0 or self.is_playing()):
+    if self.vc and (len(self.queue) > 0 or self.vc.is_playing()):
       if not ctx.interaction:
         await ctx.message.add_reaction("💢")
       await self.msg_embed(ctx, description = f"{self.emoji['clear']} Fila limpa", color = discord.Colour.red())
