@@ -1,9 +1,9 @@
 import asyncio
-from shlex import join
+import re
+
 import discord
 from discord.ext import commands
 from yt_dlp import YoutubeDL
-import re
 
 class music(commands.Cog):
   def __init__(self, bot):
@@ -14,7 +14,6 @@ class music(commands.Cog):
     self.emoji = {"ok": "✅",
                  "error": "❌",
                  "play": "▶️",
-                 "stop": "🛑",
                  "pause": "⏸️",
                  "skip": "⏭️",
                  "clear": "💢",
@@ -51,7 +50,7 @@ class music(commands.Cog):
   
   async def join(self, user):
     if not self.vc:
-        self.vc = await user.voice.channel.connect()
+        self.vc = await user.voice.channel.connect(timeout = 300.0)
     else:
       await self.vc.move_to(user.voice.channel)
       
@@ -61,13 +60,13 @@ class music(commands.Cog):
       url = self.queue[0]["source"]
       self.last_played = self.queue[0]
       self.queue.pop(0)
-      self.vc.play(discord.FFmpegPCMAudio(url, **self.FFMPEG_OP), after = lambda a: asyncio.run_coroutine_threadsafe(self.playMusic(), self.bot.loop) if self.vc.is_playing() else None)
+      self.vc.play(discord.FFmpegPCMAudio(url, **self.FFMPEG_OP), after = lambda e: print(e) if e else asyncio.run_coroutine_threadsafe(self.playMusic(), self.bot.loop))
        
   async def msg_embed(self, ctx: commands.Context, title = None, description = None, color = None, url = None):
     embed = discord.Embed(title = title, description = description, color = color)
     embed.set_author(name = ctx.author, icon_url = ctx.author.avatar)
     embed.set_thumbnail(url = url)
-    await ctx.reply(embed=embed)
+    await ctx.reply(embed = embed)
       
   @commands.hybrid_command(name = "play", aliases = ["p"], description = "Adiciona uma musica a lista, resume se estiver pausado ou toca se estiver parado")
   async def play(self, ctx: commands.Context, *, query = None):
@@ -129,17 +128,8 @@ class music(commands.Cog):
         await ctx.message.add_reaction("⏭️")
       await self.msg_embed(ctx, description = f"{self.emoji['skip']} Pulando...", color = discord.Colour.blue())
       self.vc.stop()
-      await self.playMusic()
     else:
       await self.msg_embed(ctx, description = f"{self.emoji['queue']} Fila Vazia", color = discord.Colour.light_grey())
-      
-  @commands.hybrid_command(name = "stop", aliases = ["s"], description = "Para de tocar musica")
-  async def stop(self, ctx: commands.Context):
-    if self.vc:
-      if not ctx.interaction:
-        await ctx.message.add_reaction("🛑")
-      await self.msg_embed(ctx, description = f"{self.emoji['stop']} Parando...", color = discord.Colour.red())
-      self.vc.stop()
   
   @commands.hybrid_command(name = "queue", aliases = ["q"], description = "Mostra a fila de musicas")
   async def queue(self, ctx: commands.Context):
@@ -160,7 +150,7 @@ class music(commands.Cog):
   
   @commands.hybrid_command(name = "clear", aliases = ["c"], description = "Limpa a fila de musicas e para a atual")
   async def clear(self, ctx: commands.Context):
-    if self.vc and len(self.queue) > 0:
+    if self.vc and (len(self.queue) > 0 or self.is_playing()):
       if not ctx.interaction:
         await ctx.message.add_reaction("💢")
       await self.msg_embed(ctx, description = f"{self.emoji['clear']} Fila limpa", color = discord.Colour.red())
@@ -176,7 +166,6 @@ class music(commands.Cog):
         await ctx.message.add_reaction("⬇️")
       await self.msg_embed(ctx, description = f"{self.emoji['dc']} Desconectando", color = discord.Colour.blue())
       self.queue = []
-      self.vc.stop()
       await self.vc.disconnect()
       
   @commands.hybrid_command(name = "delete", aliases = ["del"], description = "Apaga uma musica da fila")
