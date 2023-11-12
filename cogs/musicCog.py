@@ -166,6 +166,7 @@ class music(commands.Cog):
         await ctx.message.add_reaction("⬇️")
       await self.msg_embed(ctx, description = f"{self.emoji['dc']} Desconectando", color = discord.Colour.blue())
       self.queue = []
+      self.vc = None
       await self.vc.disconnect()
       
   @commands.hybrid_command(name = "delete", aliases = ["del"], description = "Apaga uma musica da fila")
